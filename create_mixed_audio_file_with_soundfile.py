@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# This is copied from: 
+# Modified from:
 # https://github.com/Sato-Kunihiko/audio-SNR/blob/master/create_mixed_audio_file_with_soundfile.py
 
 import argparse
@@ -67,6 +67,26 @@ def cal_rms(amp):
 
 def save_waveform(output_path, amp, samplerate, subtype):
     sf.write(output_path, amp, samplerate, format="wav", subtype=subtype)
+
+
+def mix_clean_with_noise(clean_file, noise_file, snr, output_mixed_file):
+    clean_amp, clean_samplerate = sf.read(clean_file)
+    noise_amp, noise_samplerate = sf.read(noise_file)
+
+    clean_rms = cal_rms(clean_amp)
+
+    start = random.randint(0, len(noise_amp) - len(clean_amp))
+    divided_noise_amp = noise_amp[start : start + len(clean_amp)]
+    noise_rms = cal_rms(divided_noise_amp)
+
+    adjusted_noise_rms = cal_adjusted_rms(clean_rms, snr)
+
+    adjusted_noise_amp = divided_noise_amp * (adjusted_noise_rms / noise_rms)
+    mixed_amp = clean_amp + adjusted_noise_amp
+
+    mixed_amp = mixed_amp / np.max(np.abs(mixed_amp))
+
+    sf.write(output_mixed_file, mixed_amp, clean_samplerate)
 
 
 if __name__ == "__main__":
