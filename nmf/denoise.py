@@ -1,3 +1,8 @@
+import sys
+import os
+p = os.path.abspath('..')
+sys.path.append(p)
+
 from utils import *
 
 
