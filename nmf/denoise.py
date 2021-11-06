@@ -27,3 +27,30 @@ def NMF_train(M, B_init, W_init, n_iter):
     assert(W.shape == W_init.shape)
 
     return B, W
+
+
+def get_speech_signal(V_mixed, B_speech, B_noise, n_iter):
+    # first learn W
+    assert(B_speech.shape == B_noise.shape)
+    p, k = B_speech.shape
+
+    B = np.concatenate([B_speech, B_noise], axis=1)
+    assert(B.shape == (p, 2 * k))
+
+    p, q = V_mixed.shape
+    W = np.random.rand(2 * k, q)
+
+    for _ in range(n_iter):
+        W_numerator = B.T @ np.divide(V_mixed, B @ W)
+        W_denominator = B.T @ np.ones((p, q))
+        W_div = np.divide(W_numerator, W_denominator)
+        W = np.multiply(W, W_div)
+
+    assert(W.shape == (2 * k, q))
+
+    # reconstruction with learned H
+    W_speech = W[:k, :]
+
+    V_speech_rec = B_speech @ W_speech
+
+    return V_speech_rec
