@@ -21,16 +21,20 @@ if __name__ == '__main__':
     print("shape of clean signal:", V_clean.shape)
     print("shape of noisy signal:", V_noise.shape)
 
+    # learn bases for clean audio signal
     model_clean = NMF(init='random', solver='mu', beta_loss='kullback-leibler', max_iter=500, alpha=0)
     W_clean = model_clean.fit_transform(V_clean)  # bases
     H_clean = model_clean.components_
+    print(f"clean recon error {model_clean.reconstruction_err_}")
 
     print("W clean shape:", W_clean.shape)
     print("H clean shape:", H_clean.shape)
 
+    # learn bases for noisy signal
     model_noise = NMF(init='random', solver='mu', beta_loss='kullback-leibler', max_iter=500, alpha=0)
     W_noise = model_noise.fit_transform(V_noise)  # bases
     H_noise = model_noise.components_
+    print(f"noise recon error {model_noise.reconstruction_err_}")
 
     print("W noise shape:", W_noise.shape)
     print("H noise shape:", H_noise.shape)
@@ -39,14 +43,15 @@ if __name__ == '__main__':
     # clean_rec = librosa.istft(W @ H * phase_clean, hop_length=256, center=False, win_length=2048)
     # sf.write(os.path.join(recon_dir, 'clean_recon_test.wav'), clean_rec, samplerate=sr_clean)
 
-    test_mixed_file = wav_mixed_files[0]
+    # MIXED
+    test_mixed_file = wav_mixed_files[1]
     print("mixed file:", test_mixed_file)
     V_mixed, phase_mixed, sr_mixed = get_magnitude_spectrum(test_mixed_file)
     print("shape of mixed signal:", V_mixed.shape)
 
     W = np.concatenate([W_clean, W_noise], axis=1)
     # model_mixed = NMF(n_components=W.shape[1], init='random', solver='mu', beta_loss='kullback-leibler', max_iter=500, alpha=0)
-    H_mixed, W_mixed, n_iter = non_negative_factorization(V_mixed.T, H=W.T, n_components=W.shape[1], init='random', update_H=False, solver='mu', beta_loss='kullback-leibler', max_iter=400)
+    H_mixed, W_mixed, n_iter = non_negative_factorization(V_mixed.T, H=W.T, n_components=W.shape[1], init='custom', update_H=False, solver='mu', beta_loss='kullback-leibler', max_iter=1000)
     p, k = W_clean.shape
     
     # W_mixed = model_mixed.fit_transform(V_mixed)  # don't use W_mixed
