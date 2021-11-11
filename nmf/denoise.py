@@ -5,6 +5,7 @@ sys.path.append(p)
 
 from utils import *
 from sklearn.decomposition import NMF, non_negative_factorization
+from tqdm import tqdm
 import glob
 
 
@@ -69,6 +70,8 @@ def recon(mixed_files, clean_files, noise_file, recon_dir):
     H_noise = model_noise.components_
     print(f"noise recon error {model_noise.reconstruction_err_}")
 
+    total_recon_error = 0.0
+
     for clean_file, mixed_file in zip(clean_files, mixed_files):
         clean_filename = get_file_name(clean_file)
         print(f"RECONSTRUCTION FOR FILE {clean_filename} IN PROGRESS")
@@ -79,6 +82,7 @@ def recon(mixed_files, clean_files, noise_file, recon_dir):
         W_clean = model_clean.fit_transform(V_clean)  # bases
         H_clean = model_clean.components_
         print(f"clean recon error {model_clean.reconstruction_err_}")
+        total_recon_error += model_clean.reconstruction_err_
 
         # MIXED
         V_mixed, phase_mixed, sr_mixed = get_magnitude_spectrum(mixed_file)
@@ -103,3 +107,5 @@ def recon(mixed_files, clean_files, noise_file, recon_dir):
         
         sf.write(os.path.join(write_path), mixed_rec, samplerate=sr_mixed)
         print()
+
+    print(f"average clean reconstruction error {total_recon_error / len(clean_files)}")
