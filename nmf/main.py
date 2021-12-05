@@ -6,7 +6,7 @@ if __name__ == '__main__':
     clean_dir = '/Users/goree/Desktop/cmu/datasets/timit/data'
     mixed_dir = '/Users/goree/Desktop/cmu/datasets/timit_snr0'
     noise_file = '/Users/goree/Desktop/cmu/datasets/noise/white_noise.wav'
-    recon_dir = '/Users/goree/Desktop/cmu/recon'
+    recon_dir = '/Users/goree/Desktop/cmu/recon_reg'
 
     wav_mixed_files = glob.glob(os.path.join(mixed_dir, '*', '*', '*', '*.wav'))
     wav_clean_files = glob.glob(os.path.join(clean_dir, '*', '*', '*', '*.WAV.wav'))
